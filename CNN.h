@@ -20,8 +20,7 @@ class CNN {
 		int out_rows;
 		int out_cols;
 		
-		int nlayers;
-		
+		int nlayers;		
 	
 	public:
 			
@@ -50,9 +49,9 @@ class CNN {
 		int getFeatureMaps() { return feature_maps; }
 		
 		//Functions
-		void addConv(int k_size, std::string activation) {
+		void addConv(int k_size) {
 					
-			layers.push_back(new lConv(feature_maps, layers[nlayers-1]->out_rows, layers[nlayers-1]->out_cols, k_size, activation));
+			layers.push_back(new lConv(feature_maps, layers[nlayers-1]->out_rows, layers[nlayers-1]->out_cols, k_size));
 				
 			nlayers++;
 			out_rows = layers[nlayers-  1]->out_rows;
@@ -111,7 +110,7 @@ class CNN {
 			
 		}
 		
-		double train( Tensor in, Tensor target, double lrate, double mom ) {
+		double train( Tensor in, Tensor target, double lrate ) {
 			
 			//Feedforward inputs
 			feedforward(in);
@@ -126,66 +125,14 @@ class CNN {
 				delta = layers[i]->feedback(delta).copy();
 				
 				//Update weights
-				layers[i]->updateweights(lrate, mom);
+				layers[i]->updateweights( lrate );
 				
 			}
 			
 			return cost;
 			
-		}
-		
-		double train (TensorArray in, TensorArray target, double lrate, double mom, int max_epochs, double min_err, int batch_size) {
-			
-			DataHandler dh;
-			int epoch = 1;
-			double err = pow(10, 5);
-			std::default_random_engine generator;
-			std::uniform_real_distribution<double> distribution(0, in.size());
-			
-			generator.seed(time(0));
-	
-			std::cout << "Training (Max. Epochs: " << max_epochs << ", Batch Size: " << batch_size << ", Min. Error: " << min_err << ", Momentum: " << mom << ")...\n";
-				
-			while (epoch <= max_epochs && err > min_err) {
-				
-				std::clock_t begin = std::clock();
-				err = 0.0;
-				
-				for (int i = 0; i < batch_size; i++) {
-					
-					int n = int(distribution(generator));
-					err += train(in[n], target[n], lrate, mom);
-					
-				}
-				
-				err /= batch_size;
-				
-					
-				int num_correct = 0;
-				
-				for (int i = 0; i < in.size(); i++) {
-					
-					Tensor output = feedforward(in[i]);
-					num_correct += (dh.compare_onehot(output, target[i]) ? 1 : 0);
-				
-				}
-				
-				std::clock_t end = std::clock(); 
-				
-				double val_acc = double(num_correct * 100) / in.size();
-				
-				lrate = dh.getLearningRate(val_acc, 0.01, 0.1, 30, 85);
-						
-				std::cout << "Epoch: " << epoch << "/" << max_epochs << " | Training Error: " << err << " | Validation Accuracy: " << val_acc <<"% | Learning Rate: " << lrate << " | Time Taken: " << double(end - begin) / CLOCKS_PER_SEC << "s\n";
-				
-				epoch++;
-		
-			}
-					
-			return err;			
-			
 		}		
-						
+								
 		double getCost( Tensor target ) {
 			
 			double cost = 0.0;
@@ -214,7 +161,7 @@ class CNN {
 				
 				for (int j = 0; j < out_cols; j++) {
 					
-					delta(0, i, j) = (layers[nlayers - 1]->out(0, i, j) - target(0, i, j));
+					delta(0, i, j) = (layers[nlayers - 1]->out(0, i, j) - target(0, i, j)) / (out_rows * out_cols);
 					cost += pow(layers[nlayers - 1]->out(0, i, j) - target(0, i, j), 2);
 					
 				}
@@ -224,6 +171,15 @@ class CNN {
 			cost /= (2 * out_rows * out_cols);
 			
 			return cost;
+			
+		}
+		
+		void printWeights( int layer_num ) {
+			
+			if (layer_num > 0 && layer_num < nlayers)			
+				layers[layer_num]->getWeights().print();
+				
+			return;
 			
 		}
 		

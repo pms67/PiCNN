@@ -33,6 +33,7 @@ class lFlatten : public Layer {
 		
 		//Properties
 		char getType() { return 'f'; }
+		Tensor getWeights() { return dCdX; }
 		
 		//Functions		
 		Tensor feedforward( Tensor in ) {
@@ -83,7 +84,7 @@ class lFlatten : public Layer {
 		
 		}
 		
-		void updateweights( float rate, float mom ) { return; }
+		void updateweights( float rate ) { return; }
 		
 };
 

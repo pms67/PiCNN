@@ -24,6 +24,7 @@ class lInput : public Layer {
 		
 		//Properties
 		char getType() { return 'i'; }
+		Tensor getWeights() { Tensor t; return t; }
 		
 		//Functions
 		Tensor feedforward( Tensor in ) {
