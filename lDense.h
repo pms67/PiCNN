@@ -17,9 +17,6 @@ class lDense : public Layer {
 		Tensor dCdW;
 		Tensor dCdB;
 		
-		Tensor prev_dCdW;
-		Tensor prev_dCdB;
-		
 	public:
 				
 		//Constructor
@@ -42,8 +39,6 @@ class lDense : public Layer {
 			dCdX.resize(in_dim, in_rows, in_cols);
 			dCdW.resize(in_dim, out_rows, in_rows);
 			dCdB.resize(in_dim, out_rows, out_cols);
-			prev_dCdW.resize(in_dim, out_rows, in_rows);
-			prev_dCdB.resize(in_dim, out_rows, out_cols);
 			
 			//Initialise weights and biases
 			weights.randn(0.0, 0.1);
@@ -53,6 +48,7 @@ class lDense : public Layer {
 		
 		//Properties
 		char getType() { return 'd'; }
+		Tensor getWeights() { return weights; }
 		
 		//Functions		
 		Tensor feedforward( Tensor in ) {
@@ -81,9 +77,6 @@ class lDense : public Layer {
 		
 		Tensor feedback( Tensor delta ) {
 
-			prev_dCdW = dCdW.copy();
-			prev_dCdB = dCdB.copy();
-
 			dCdX.set(0);
 			dCdW.set(0);
 			dCdB.set(0);
@@ -105,15 +98,15 @@ class lDense : public Layer {
 		
 		}
 		
-		void updateweights( float rate, float mom ) {
+		void updateweights( float rate ) {
 			
 			for (int i = 0; i < out_rows; i++) {
 				
-				bias(0, i, 0) -= rate * dCdB(0, i, 0) + mom * (dCdB(0, i, 0) - prev_dCdB(0, i, 0));
+				bias(0, i, 0) -= rate * dCdB(0, i, 0);
 				
 				for (int j = 0; j < in_rows; j++) {
 					
-					weights(0, i, j) -= rate * dCdW(0, i, j) + mom * (dCdW(0, i, j) - prev_dCdW(0, i , j));					
+					weights(0, i, j) -= rate * dCdW(0, i, j);					
 					
 				}			
 				

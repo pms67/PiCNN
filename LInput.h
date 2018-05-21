@@ -1,12 +1,14 @@
-#ifndef LINPUT_H
-#define LINPUT_H
+#ifndef INPUTLAYER_H
+#define INPUTLAYER_H
 
-class lInput : public Layer {
+#include "Layer.h"
+
+class LInput : public Layer {
 		
 	public:
 		
 		//Constructor
-		lInput( int out_dim, int in_rows, int in_cols ) {
+		LInput( int out_dim, int in_rows, int in_cols ) {
 			
 			//Set dimensions
 			this->in_rows = in_rows;
@@ -24,7 +26,6 @@ class lInput : public Layer {
 		
 		//Properties
 		char getType() { return 'i'; }
-		Tensor getWeights() { Tensor t; return t; }
 		
 		//Functions
 		Tensor feedforward( Tensor in ) {

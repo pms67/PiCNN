@@ -2,69 +2,167 @@
 #define ACTIVATION_H
 
 #include <cmath>
+#include <iostream>
 
-double act_relu( double val ) {
+class Activation {
 	
-	if (val > 0)
-		return val;
-	else
-		return 0;
-	
-}
-
-double act_d_relu( double val ) {
-	
-	if (val > 0)
-		return 1;
-	else
-		return 0;
-	
-}
-
-double act_relu_leaky( double val ) {
-	
-	if (val > 0)
-		return val;
-	else
-		return 0.01 * val;
-	
-}
-
-double act_d_relu_leaky( double val) {
-	
-	if (val > 0)
-		return 1;
-	else
-		return 0.01;
-	
-}
-
-double act_sigmoid( double val ) {
-	
-	return 1 / (1 + exp(-val));
+	public:
+				
+		Activation() { }
 		
-}
+		char type;	
+	
+		virtual double activate( double val ) { }
+		virtual double derivative( double val ) { }	
+	
+};
 
-double act_d_sigmoid( double val ) {
+class Sigmoid : public Activation {
 	
-	double temp = act_sigmoid(val);
+	public:
+		
+		Sigmoid() { type = 's';	}
+		
+		double activate( double val ) {
+		
+			return 1 / ( 1 + exp(-val));
+		
+		}
+		
+		double derivative( double val ) {
+			
+			double temp = activate(val);
+			
+			return temp * ( 1 - temp );
+			
+		}
 	
-	return temp * (1 - temp);
-	
-}
+};
 
-double act_tanh( double val ) {
+class Tanh : public Activation {
 	
-	return (2 / (1 + exp(-2*val))) - 1;
+	public:
+		
+		Tanh() { type = 't'; }
+		
+		double activate( double val ) {
+			
+			return tanh(val);
+		
+		}
+		
+		double derivative( double val ) {
+						
+			return 1 - pow(tanh(val), 2);
+			
+		}
 	
-}
+};
 
-double act_d_tanh( double val ) {
+class ArcTan : public Activation {
 	
-	double temp = pow(act_tanh(val), 2);
+	public:
+		
+		ArcTan() { type = 'a'; }
+		
+		double activate( double val ) {
+		
+			return atan(val);
+		
+		}
+		
+		double derivative( double val ) {
+						
+			return 1 / (pow(val, 2) + 1);
+			
+		}
 	
-	return 1 - temp;
+};
+
+class ReLU : public Activation {
 	
-}
+	public:
+		
+		ReLU() { type = 'r'; }
+		
+		double activate( double val ) {
+		
+			if (val > 0)
+				return val;
+			else
+				return 0;
+		
+		}
+		
+		double derivative( double val ) {
+			
+			if (val > 0)
+				return 1;
+			else
+				return 0;
+			
+		}
+	
+};
+
+class LeakyReLU : public Activation {
+	
+	public:
+		
+		LeakyReLU() { type = 'l'; }
+		
+		double activate( double val ) {
+		
+			if (val > 0)
+				return val;
+			else
+				return 0.01 * val;
+		
+		}
+		
+		double derivative( double val ) {
+			
+			if (val > 0)
+				return 1;
+			else
+				return 0.01;
+			
+		}
+	
+};
+
+class FastSigmoid : public Activation {
+	
+	public:
+	
+		FastSigmoid() { type = 'f'; }
+		
+		double fast_exp( double x ) {
+			
+			x = 1.0 + x / 1024;
+			x *= x; x *= x; x *= x; x *= x;
+			x *= x; x *= x; x *= x; x *= x;
+			x *= x; x *= x;
+			return x;
+			
+		}
+		
+		double activate( double val ) {
+		
+			return 1 / (1 + fast_exp(-val));
+		
+		}
+		
+		double derivative( double val ) {
+			
+			double temp = activate(val);
+			
+			return temp * (1 - temp);
+			
+		}
+		
+
+	
+};
 
 #endif

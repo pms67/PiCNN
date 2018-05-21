@@ -1,9 +1,9 @@
-#ifndef LFLATTEN_H
-#define LFLATTEN_H
+#ifndef FLATTENLAYER_H
+#define FLATTENLAYER_H
 
 #include "Layer.h"
 
-class lFlatten : public Layer {
+class LFlatten : public Layer {
 	
 	private:
 											
@@ -13,7 +13,7 @@ class lFlatten : public Layer {
 	public:
 				
 		//Constructor
-		lFlatten( int in_dim, int in_rows, int in_cols ) {
+		LFlatten( int in_dim, int in_rows, int in_cols ) {
 			
 			//Set dimensions
 			this->in_dim = in_dim;
@@ -33,7 +33,6 @@ class lFlatten : public Layer {
 		
 		//Properties
 		char getType() { return 'f'; }
-		Tensor getWeights() { return dCdX; }
 		
 		//Functions		
 		Tensor feedforward( Tensor in ) {
@@ -84,7 +83,7 @@ class lFlatten : public Layer {
 		
 		}
 		
-		void updateweights( float rate ) { return; }
+		void updateweights( float rate, float mom ) { return; }
 		
 };
 
